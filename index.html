@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoShop - Tienda Online de Motos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">🏍️ MotoShop</div>
+        <div class="nav-links">
+            <button onclick="showHome()"><span data-i18n="nav.home">Inicio</span></button>
+            <button onclick="filterByCategory('motorcycles')"><span data-i18n="nav.motorcycles">Motocicletas</span></button>
+            <button onclick="filterByCategory('parts')"><span data-i18n="nav.parts">Repuestos</span></button>
+            <button onclick="filterByCategory('accessories')"><span data-i18n="nav.accessories">Accesorios</span></button>
+            
+            <div class="user-menu" id="userMenu" style="display: none;">
+                <span id="userName"></span>
+                <button class="logout-btn" onclick="logout()"><span data-i18n="nav.logout">Cerrar Sesión</span></button>
+            </div>
+            
+            <button id="loginBtn" onclick="showLogin()"><span data-i18n="nav.login">Iniciar Sesión</span></button>
+            
+            <div class="cart-icon" onclick="toggleCart()">
+                🛒 <span class="cart-count" id="cartCount">0</span>
+            </div>
+            
+            <button class="lang-btn active" data-lang="es" onclick="changeLanguage('es')">ES</button>
+            <button class="lang-btn" data-lang="en" onclick="changeLanguage('en')">EN</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="heroSection">
+        <h1 data-i18n="hero.title">Tu Destino para Motos y Repuestos</h1>
+        <p data-i18n="hero.subtitle">Descubre las mejores motocicletas y partes premium</p>
+        <button class="cta-button" onclick="showCatalog()"><span data-i18n="hero.cta">Ver Catálogo</span></button>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section" id="filtersSection" style="display: none;">
+        <h2 data-i18n="filters.title">Filtros</h2>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label data-i18n="filters.search">Buscar productos</label>
+                <input type="text" id="searchInput" placeholder="Buscar..." oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label data-i18n="filters.category">Categoría</label>
+                <select id="categoryFilter" onchange="applyFilters()">
+                    <option value="all" data-i18n="filters.all">Todo</option>
+                    <option value="motorcycles" data-i18n="filters.motorcycles">Motocicletas</option>
+                    <option value="parts" data-i18n="filters.parts">Repuestos</option>
+                    <option value="accessories" data-i18n="filters.accessories">Accesorios</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label data-i18n="filters.brand">Marca</label>
+                <select id="brandFilter" onchange="applyFilters()">
+                    <option value="all">Todas</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label data-i18n="filters.priceRange">Rango de Precio</label>
+                <input type="range" id="priceRange" min="0" max="30000" step="100" value="30000" oninput="applyFilters()">
+                <div class="price-display">$0 - $<span id="priceValue">30000</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section">
+        <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- Login/Register Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+            <div id="loginForm">
+                <h2 data-i18n="auth.loginTitle">Iniciar Sesión</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label data-i18n="auth.email">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="auth.password">Contraseña</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="submit-btn"><span data-i18n="auth.login">Entrar</span></button>
+                </form>
+                <p class="auth-switch">
+                    <span data-i18n="auth.noAccount">¿No tienes cuenta?</span>
+                    <a href="#" onclick="switchToRegister()"><span data-i18n="auth.registerHere">Regístrate aquí</span></a>
+                </p>
+            </div>
+            <div id="registerForm" style="display: none;">
+                <h2 data-i18n="auth.registerTitle">Crear Cuenta</h2>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label data-i18n="auth.name">Nombre Completo</label>
+                        <input type="text" id="regName" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="auth.email">Correo Electrónico</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="auth.password">Contraseña</label>
+                        <input type="password" id="regPassword" required>
+                    </div>
+                    <button type="submit" class="submit-btn"><span data-i18n="auth.register">Registrarse</span></button>
+                </form>
+                <p class="auth-switch">
+                    <span data-i18n="auth.haveAccount">¿Ya tienes cuenta?</span>
+                    <a href="#" onclick="switchToLogin()"><span data-i18n="auth.loginHere">Inicia sesión aquí</span></a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('cartModal')">✕</button>
+            <h2 data-i18n="cart.title">Carrito de Compras</h2>
+            <div id="cartItems"></div>
+            <div class="cart-total">
+                <span data-i18n="cart.total">Total:</span> $<span id="cartTotal">0</span>
+            </div>
+            <div class="cart-actions">
+                <button class="continue-shopping" onclick="closeModal('cartModal')">
+                    <span data-i18n="cart.continueShopping">Continuar Comprando</span>
+                </button>
+                <button class="checkout-btn" onclick="checkout()">
+                    <span data-i18n="cart.checkout">Proceder al Pago</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
